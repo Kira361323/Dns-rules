@@ -1,0 +1,40 @@
+name: Build sing-box rules
+
+on:
+  schedule:
+    - cron: "0 */24 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download GeoHideDNS hosts
+        run: |
+          curl -L \
+          https://raw.githubusercontent.com/Internet-Helper/GeoHideDNS/main/hosts/hosts \
+          -o hosts
+
+      - name: Install sing-box
+        run: |
+          wget -q https://github.com/SagerNet/sing-box/releases/download/v1.13.14/sing-box-1.13.14-linux-amd64.tar.gz
+          tar xf sing-box-1.13.14-linux-amd64.tar.gz
+          sudo mv sing-box-1.13.14-linux-amd64/sing-box /usr/local/bin/
+
+      - name: Convert hosts to rule-set
+        run: |
+          bash scripts/convert.sh
+
+      - name: Commit update
+        run: |
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add geohide.srs
+          git commit -m "Update GeoHideDNS rules" || exit 0
+          git push
