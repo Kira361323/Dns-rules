@@ -125,7 +125,10 @@ jobs:
             exit 1
           fi
 
-          sing-box rule-set format geohide.srs > /dev/null
+          # format работает только с JSON-исходником, для проверки
+          # скомпилированного бинарника нужен decompile
+          sing-box rule-set decompile geohide.srs --output /tmp/verify.json
+          python3 -m json.tool /tmp/verify.json > /dev/null
 
           size=$(stat -c%s geohide.srs)
           echo "geohide.srs size: ${size} bytes"
