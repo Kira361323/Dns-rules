@@ -75,7 +75,7 @@
         "type": "remote",
         "tag": "geohide-domains",
         "format": "binary",
-        "url": "https://github.com/Kira361323/Dns-rules/releases/latest/download/geohide.srs",
+        "url": "https://github.com/Kira361323/Dns-rules/releases/latest/download/domains.srs",
         "update_interval": "24h"
       }
     ],
