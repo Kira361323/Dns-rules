@@ -80,7 +80,8 @@
         "tag": "domains-ruleset",
         "format": "binary",
         "url": "https://github.com/Kira361323/Dns-rules/releases/latest/download/domains.srs",
-        "update_interval": "24h"
+        "update_interval": "24h",
+        "download_detour": "direct"
       }
     ],
     "rules": [
