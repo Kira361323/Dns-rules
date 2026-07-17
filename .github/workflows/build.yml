@@ -26,29 +26,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download GeoHideDNS hosts
+      - name: Download source lists
         run: |
           curl -fsSL --retry 3 --retry-delay 5 \
           https://raw.githubusercontent.com/Internet-Helper/GeoHideDNS/main/hosts/hosts \
-          -o hosts
+          -o hosts_geo
 
-      - name: Validate downloaded hosts file
+          curl -fsSL --retry 3 --retry-delay 5 \
+          https://raw.githubusercontent.com/ImMALWARE/dns.malw.link/refs/heads/master/hosts \
+          -o hosts_malw
+
+      - name: Validate downloaded files
         run: |
-          if [ ! -s hosts ]; then
-            echo "::error::hosts file is empty or missing"
-            exit 1
-          fi
+          for f in hosts_geo hosts_malw; do
+            if [ ! -s "$f" ]; then
+              echo "::error::File $f is empty or missing"
+              exit 1
+            fi
+            if grep -qi "<html" "$f"; then
+              echo "::error::File $f looks like an HTML page"
+              exit 1
+            fi
+          done
 
-          lines=$(wc -l < hosts)
-          echo "Downloaded hosts file: $lines lines"
-
-          if grep -qi "<html" hosts; then
-            echo "::error::downloaded file looks like an HTML page, not a hosts list"
-            exit 1
-          fi
+          lines=$(cat hosts_geo hosts_malw | wc -l)
+          echo "Total downloaded lines: $lines"
 
           if [ "$lines" -lt 100 ]; then
-            echo "::error::hosts file looks too small ($lines lines), aborting"
+            echo "::error::Total lists look too small ($lines lines), aborting"
             exit 1
           fi
 
@@ -57,7 +62,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          new_hash=$(sha256sum hosts | awk '{print $1}')
+          new_hash=$(cat hosts_geo hosts_malw | sha256sum | awk '{print $1}')
           echo "$new_hash" > hosts.sha256
 
           if gh release download latest \
@@ -77,7 +82,7 @@ jobs:
             echo "## ⏭️ Skipped: source unchanged" >> "$GITHUB_STEP_SUMMARY"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Source changed (or forced rebuild), proceeding"
+            echo "Sources changed (or forced rebuild), proceeding"
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -120,18 +125,16 @@ jobs:
       - name: Validate generated rule-set
         if: steps.check.outputs.skip != 'true'
         run: |
-          if [ ! -s geohide.srs ]; then
-            echo "::error::geohide.srs was not created or is empty"
+          if [ ! -s domains.srs ]; then
+            echo "::error::domains.srs was not created or is empty"
             exit 1
           fi
 
-          # format работает только с JSON-исходником, для проверки
-          # скомпилированного бинарника нужен decompile
-          sing-box rule-set decompile geohide.srs --output /tmp/verify.json
+          sing-box rule-set decompile domains.srs --output /tmp/verify.json
           python3 -m json.tool /tmp/verify.json > /dev/null
 
-          size=$(stat -c%s geohide.srs)
-          echo "geohide.srs size: ${size} bytes"
+          size=$(stat -c%s domains.srs)
+          echo "domains.srs size: ${size} bytes"
 
       - name: Upload release asset
         if: steps.check.outputs.skip != 'true'
@@ -139,9 +142,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if gh release view latest --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release upload latest geohide.srs hosts.sha256 --clobber
+            gh release upload latest domains.srs hosts.sha256 --clobber
           else
-            gh release create latest geohide.srs hosts.sha256 \
-              --title "GeoHideDNS sing-box rules" \
+            gh release create latest domains.srs hosts.sha256 \
+              --title "Custom Domains sing-box rules" \
               --notes "Automatic update"
           fi
