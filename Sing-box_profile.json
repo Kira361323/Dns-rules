@@ -1,0 +1,103 @@
+{
+  "log": {
+    "level": "panic",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "type": "udp",
+        "tag": "bootstrap",
+        "server": "8.8.8.8"
+      },
+      {
+        "type": "https",
+        "tag": "xbox",
+        "server": "xbox-dns.ru",
+        "domain_resolver": "bootstrap"
+      },
+      {
+        "type": "https",
+        "tag": "dnsforge",
+        "server": "dnsforge.de",
+        "domain_resolver": "bootstrap"
+      }
+    ],
+    "rules": [
+      {
+        "package_name": [
+          "com.openai.chatgpt",
+          "com.anthropic.claude",
+          "com.microsoft.copilot",
+          "com.deepl.mobiletranslator",
+          "com.deepseek.chat",
+          "com.google.android.apps.bard",
+          "ai.x.grok",
+          "ai.leonardo.leonardo",
+          "ai.mistral.chat",
+          "com.google.android.apps.labs.language.tailwind",
+          "ai.qwenlm.chat.android",
+          "com.suno.android"
+        ],
+        "server": "xbox"
+      },
+      {
+        "rule_set": "domains-ruleset",
+        "server": "xbox"
+      }
+    ],
+    "final": "dnsforge",
+    "strategy": "prefer_ipv4",
+    "independent_cache": true
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "interface_name": "tun0",
+      "address": [
+        "172.19.0.1/30"
+      ],
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "gvisor",
+      "mtu": 1400,
+      "exclude_package": [
+        "com.whatsapp"
+      ]
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ],
+  "route": {
+    "rule_set": [
+      {
+        "type": "remote",
+        "tag": "domains-ruleset",
+        "format": "binary",
+        "url": "https://github.com/Kira361323/Dns-rules/releases/latest/download/domains.srs",
+        "update_interval": "24h"
+      }
+    ],
+    "rules": [
+      {
+        "action": "sniff"
+      },
+      {
+        "protocol": "dns",
+        "action": "hijack-dns"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "direct"
+      }
+    ],
+    "default_domain_resolver": "bootstrap",
+    "auto_detect_interface": true,
+    "final": "direct"
+  }
+}
