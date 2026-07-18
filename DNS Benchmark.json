@@ -1,0 +1,68 @@
+{
+  "log": {
+    "level": "debug",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "type": "selector",
+        "tag": "doh-bench",
+        "outbounds": [
+          {"type": "https", "server": "https://xbox-dns.ru/dns-query"},
+          {"type": "https", "server": "https://dns.comss.one/dns-query"},
+          {"type": "https", "server": "https://dns.malw.link/dns-query"},
+          {"type": "https", "server": "https://dns.astracat.ru/dns-query"},
+          {"type": "https", "server": "https://dns.mafioznik.xyz/dns-query"},
+          {"type": "https", "server": "https://dns.geohide.ru:444/dns-query"},
+          {"type": "https", "server": "https://dns.alidns.com/dns-query"},
+          {"type": "https", "server": "https://dns.bebasid.com/dns-query"},
+          {"type": "https", "server": "https://dns.bebasid.com/dns-oisd"},
+          {"type": "https", "server": "https://dns.bebasid.com/dns-hagezi"},
+          {"type": "https", "server": "https://dns.cloudflare.com/dns-query"},
+          {"type": "https", "server": "https://doh.dns.sb/dns-query"},
+          {"type": "https", "server": "https://dns.pub/dns-query"},
+          {"type": "https", "server": "https://dns.google/dns-query"},
+          {"type": "https", "server": "https://adblock.dns.mullvad.net/dns-query"},
+          {"type": "https", "server": "https://ada.openbld.net/dns-query"},
+          {"type": "https", "server": "https://dns.quad9.net/dns-query"},
+          {"type": "https", "server": "https://dns11.quad9.net/dns-query"},
+          {"type": "https", "server": "https://doh.applied-privacy.net/query"},
+          {"type": "https", "server": "https://dns.digitale-gesellschaft.ch/dns-query"},
+          {"type": "https", "server": "https://noads.joindns4.eu/dns-query"},
+          {"type": "https", "server": "https://doh.libredns.gr/dns-query"},
+          {"type": "https", "server": "https://doh.libredns.gr/ads"},
+          {"type": "https", "server": "https://dnsforge.de/dns-query"},
+          {"type": "https", "server": "https://root.hagezi.org/dns-query"},
+          {"type": "https", "server": "https://wurzn.hagezi.org/dns-query"},
+          {"type": "https", "server": "https://juuri.hagezi.org/dns-query"},
+          {"type": "https", "server": "https://doh.tiarap.org/dns-query"},
+          {"type": "https", "server": "https://doh.tiar.app/dns-query"}
+        ],
+        "strategy": "fastest"
+      }
+    ],
+    "rules": [
+      {
+        "action": "route-default",
+        "server": "doh-bench"
+      }
+    ],
+    "independent_cache": true
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "bench-tun",
+      "address": ["172.19.0.5/30"],
+      "auto_route": true,
+      "stack": "gvisor"
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ]
+}
