@@ -8,8 +8,8 @@
 
 ### `geohide.srs`
 Скомпилированный бинарный rule-set (формат sing-box `.srs`) со списком доменов. Собирается автоматически через GitHub Actions на основе агрегации списков из двух источников:
-- [Internet-Helper/GeoHideDNS](https://github.com/Internet-Helper/GeoHideDNS) — обход геоблокировок.
-- [ImMALWARE/dns.malw.link](https://github.com/ImMALWARE/dns.malw.link) — блокировка рекламы и вредоносных доменов.
+- [Internet-Helper/GeoHideDNS](https://github.com/Internet-Helper/GeoHideDNS)
+- [ImMALWARE/dns.malw.link](https://github.com/ImMALWARE/dns.malw.link)
 
 Подключается в конфиге sing-box как remote rule-set:
 ```json
